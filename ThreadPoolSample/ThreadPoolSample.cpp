@@ -1,22 +1,27 @@
-// ThreadPoolSample.cpp : DLL アプリケーション用にエクスポートされる関数を定義します。
+// ThreadPoolSample.cpp : コンソール アプリケーションのエントリ ポイントを定義します。
 //
 
 #include "stdafx.h"
-#include "ThreadPoolSample.h"
+#include "ThreadPool.h"
+#include "Sample.h"
+#include <iostream>
 
-
-// これは、エクスポートされた変数の例です。
-THREADPOOLSAMPLE_API int nThreadPoolSample=0;
-
-// これは、エクスポートされた関数の例です。
-THREADPOOLSAMPLE_API int fnThreadPoolSample(void)
+int main()
 {
-    return 42;
+	std::unique_ptr<ThreadPool> pThreadPool(new ThreadPool(1));
+	std::unique_ptr<Sample> pSample(new Sample);
+	pThreadPool->Enqueue([&] { pSample->Action(); });
+	pThreadPool->Enqueue([&] { pSample->Action(); });
+	pThreadPool->Enqueue([&] { pSample->Action(); });
+	pThreadPool->Enqueue([&] { pSample->Action(); });
+	pThreadPool->Enqueue([&] { pSample->Action(); });
+	pSample->Wait();
+	pSample->Wait();
+	pSample->Wait();
+	pSample->Wait();
+	pSample->Wait();
+	std::wcout << L"Result : " << pSample->GetHResult() << std::endl;
+
+    return 0;
 }
 
-// これは、エクスポートされたクラスのコンストラクターです。
-// クラス定義に関しては ThreadPoolSample.h を参照してください。
-CThreadPoolSample::CThreadPoolSample()
-{
-    return;
-}
