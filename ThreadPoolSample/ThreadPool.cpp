@@ -45,7 +45,7 @@ ThreadPool::~ThreadPool()
 	}
 }
 
-Task::Task(): m_hr(E_FAIL)
+Task::Task(): m_isExecuted(false), m_isCanceled(false), m_hr(E_FAIL)
 {
 }
 
@@ -56,17 +56,37 @@ Task::~Task()
 
 void Task::Action()
 {
+	{
+		std::lock_guard<std::mutex> lock(m_mutex);
+		if (m_isCanceled)
+		{
+			return;
+		}
+	}
+
 	std::wcout << "Call Task::Action" << std::endl;
+	m_isExecuted = true;
 	m_condition.notify_one();
 }
 
 void Task::Wait()
 {
 	std::unique_lock<std::mutex> lock(m_mutex);
-	m_condition.wait(lock);
+	if (m_isCanceled)
+	{
+		return;
+	}
+
+	m_condition.wait(lock, [this] { return m_isExecuted || m_isCanceled; });
 }
 
 HRESULT Task::GetHResult()
 {
 	return m_hr;
+}
+
+void Task::Cancel()
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
+	m_isCanceled = true;
 }

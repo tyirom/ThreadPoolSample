@@ -45,6 +45,8 @@ class Task
 {
 	std::condition_variable m_condition;
 	std::mutex m_mutex;
+	bool m_isExecuted;
+	bool m_isCanceled;
 
 protected:
 	HRESULT m_hr;
@@ -56,4 +58,5 @@ public:
 	virtual void Action();
 	virtual void Wait();
 	virtual HRESULT GetHResult();
+	virtual void Cancel();
 };
