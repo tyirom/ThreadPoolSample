@@ -29,4 +29,14 @@ public:
 	Sample2();
 	HRESULT Action();
 };
+
+class Sample3
+{
+	int m_count;
+
+public:
+	Sample3();
+	HRESULT Action();
+	void Slot(HRESULT hr);
+};
 #endif

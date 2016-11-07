@@ -8,6 +8,7 @@
 #include "ThreadPool2.h"
 #include "ThreadPool3.h"
 #include "ThreadPool4.h"
+#include "ThreadPool5.h"
 
 void ThreadPoolSample1()
 {
@@ -93,12 +94,36 @@ void ThreadPoolSample4()
 	}
 }
 
+void ThreadPoolSample5()
+{
+	auto pSample = std::make_unique<Sample3>();
+	{
+		std::unique_ptr<ThreadPool5::ThreadPool> pThreadPool(new ThreadPool5::ThreadPool(1));
+		auto task1 = pThreadPool->Enqueue([&] { return pSample->Action(); }, [&](HRESULT hr) {pSample->Slot(hr); });
+		auto task2 = pThreadPool->Enqueue([&] { return pSample->Action(); }, [&](HRESULT hr) {pSample->Slot(hr); });
+		auto task3 = pThreadPool->Enqueue([&] { return pSample->Action(); }, [&](HRESULT hr) {pSample->Slot(hr); });
+		auto task4 = pThreadPool->Enqueue([&] { return pSample->Action(); }, [&](HRESULT hr) {pSample->Slot(hr); });
+		auto task5 = pThreadPool->Enqueue([&] { return pSample->Action(); }, [&](HRESULT hr) {pSample->Slot(hr); });
+		task1->Wait();
+		std::wcout << L"task1 : " << task1->GetHResult() << std::endl;
+		task2->Wait();
+		std::wcout << L"task2 : " << task2->GetHResult() << std::endl;
+		task3->Wait();
+		std::wcout << L"task3 : " << task3->GetHResult() << std::endl;
+		task4->Wait();
+		std::wcout << L"task4 : " << task4->GetHResult() << std::endl;
+		task5->Wait();
+		std::wcout << L"task5 : " << task5->GetHResult() << std::endl;
+	}
+}
+
 int main()
 {
 	ThreadPoolSample1();
 	ThreadPoolSample2();
 	ThreadPoolSample3();
 	ThreadPoolSample4();
+	ThreadPoolSample5();
 
 	return 0;
 }

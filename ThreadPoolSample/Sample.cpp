@@ -45,3 +45,18 @@ HRESULT Sample2::Action()
 
 	return E_FAIL;
 }
+
+Sample3::Sample3(): m_count(0)
+{
+}
+
+HRESULT Sample3::Action()
+{
+	std::wcout << L"Call Sample3::Action (" << ++m_count << ")" << std::endl;
+	return S_OK;
+}
+
+void Sample3::Slot(HRESULT hr)
+{
+	std::wcout << L"Call Sample3::Slot : " << hr << std::endl;
+}
