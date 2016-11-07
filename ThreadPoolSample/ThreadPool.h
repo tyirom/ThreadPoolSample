@@ -4,7 +4,6 @@
 #include <thread>
 #include <deque>
 #include <mutex>
-#include <winerror.h>
 
 class ThreadPool;
 class Worker
@@ -41,6 +40,7 @@ void ThreadPool::Enqueue(T func)
 	m_condition.notify_one();
 }
 
+#if 0
 class Task
 {
 	std::condition_variable m_condition;
@@ -60,3 +60,4 @@ public:
 	virtual HRESULT GetHResult();
 	virtual void Cancel();
 };
+#endif

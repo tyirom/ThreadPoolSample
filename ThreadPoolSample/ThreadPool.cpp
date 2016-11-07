@@ -43,8 +43,11 @@ ThreadPool::~ThreadPool()
 	{
 		m_workers[i].join();
 	}
+
+	std::wcout << L"Destruct ThreadPool (remain " << m_tasks.size() << L" tasks)" << std::endl;
 }
 
+#if 0
 Task::Task(): m_isExecuted(false), m_isCanceled(false), m_hr(E_FAIL)
 {
 }
@@ -60,11 +63,12 @@ void Task::Action()
 		std::lock_guard<std::mutex> lock(m_mutex);
 		if (m_isCanceled)
 		{
+			std::wcout << L"Task::Action Canceled" << std::endl;
 			return;
 		}
 	}
 
-	std::wcout << "Call Task::Action" << std::endl;
+	std::wcout << L"Call Task::Action" << std::endl;
 	m_isExecuted = true;
 	m_condition.notify_one();
 }
@@ -89,4 +93,6 @@ void Task::Cancel()
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
 	m_isCanceled = true;
+	std::wcout << L"Call Task::Cancel" << std::endl;
 }
+#endif
