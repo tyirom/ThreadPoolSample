@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ThreadPool5.h" company="Grass Valley K.K.">
+// <copyright file="ThreadPool6.h" company="Grass Valley K.K.">
 //   Copyright (C) 2016 pichio. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -9,22 +9,24 @@
 #include <vector>
 #include <winerror.h>
 
-namespace ThreadPool5
+namespace ThreadPool6
 {
 	template <class T>
 	class Slot
 	{
-		using Type = std::function<T>;
 	protected:
+		using Type = std::function<T>;
 		Type m_slot;
 
-	public:
 		void Connect(Type slot)
 		{
 			m_slot = slot;
 		}
 	};
-	using ExceptionSlot = Slot<void(const std::exception&)>;
+	using ExceptionFunc = void(const std::exception&);
+	using HResultFunc = void(HRESULT);
+	using ExceptionSlot = Slot<ExceptionFunc>;
+	using HResultSlot = Slot<HResultFunc>;
 
 	class Task
 	{
@@ -61,16 +63,18 @@ namespace ThreadPool5
 	};
 
 	class ThreadPool;
-	class Worker : public ExceptionSlot
+	class Worker : public ExceptionSlot, public HResultSlot
 	{
 		ThreadPool& m_owner;
 
 	public:
 		explicit Worker(ThreadPool& owner);
 		void operator()();
+		void ErrorDetected(ExceptionSlot::Type slot);
+		void Executed(HResultSlot::Type slot);
 	};
 
-	class ThreadPool : public ExceptionSlot
+	class ThreadPool : public ExceptionSlot, public HResultSlot
 	{
 		friend Worker;
 		std::vector<std::thread> m_workers;
@@ -80,11 +84,14 @@ namespace ThreadPool5
 		bool m_isDisposing;
 
 		void OnError(const std::exception& ex) const;
+		void OnExecuted(HRESULT hr) const;
 
 	public:
 		explicit ThreadPool(size_t nThreads);
 		template <class T, class SlotT> std::shared_ptr<Task> Enqueue(const T& func, const SlotT& slot);
 		~ThreadPool();
+		void ErrorDetected(ExceptionSlot::Type slot);
+		void Executed(HResultSlot::Type slot);
 	};
 
 	template <class ActionT, class SlotT>

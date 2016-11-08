@@ -154,6 +154,7 @@
     <ClInclude Include="ThreadPool3.h" />
     <ClInclude Include="ThreadPool4.h" />
     <ClInclude Include="ThreadPool5.h" />
+    <ClInclude Include="ThreadPool6.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Sample.cpp" />
@@ -169,6 +170,7 @@
     <ClCompile Include="ThreadPool3.cpp" />
     <ClCompile Include="ThreadPool4.cpp" />
     <ClCompile Include="ThreadPool5.cpp" />
+    <ClCompile Include="ThreadPool6.cpp" />
     <ClCompile Include="ThreadPoolSample.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
