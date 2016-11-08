@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "ThreadPool6.h"
 #include <iostream>
+#include <algorithm>
 
 namespace ThreadPool6
 {
@@ -58,9 +59,9 @@ namespace ThreadPool6
 		HResultSlot::m_slot(hr);
 	}
 
-	ThreadPool::ThreadPool(size_t nThreads) : m_isDisposing(false)
+	ThreadPool::ThreadPool(unsigned int nThreads) : m_isDisposing(false)
 	{
-		for (size_t i = 0; i < nThreads; ++i)
+		for (size_t i = 0; i < std::min(nThreads, std::thread::hardware_concurrency()); ++i)
 		{
 			auto worker = Worker(*this);
 			worker.ErrorDetected([this](const std::exception& ex) { OnError(ex); });
