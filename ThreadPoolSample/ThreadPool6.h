@@ -87,11 +87,12 @@ namespace ThreadPool6
 		void OnExecuted(HRESULT hr) const;
 
 	public:
-		explicit ThreadPool(size_t nThreads);
+		explicit ThreadPool(unsigned int nThreads);
 		template <class T, class SlotT> std::shared_ptr<Task> Enqueue(const T& func, const SlotT& slot);
 		~ThreadPool();
 		void ErrorDetected(ExceptionSlot::Type slot);
 		void Executed(HResultSlot::Type slot);
+		void Cancel(std::shared_ptr<Task> pTask);
 	};
 
 	template <class ActionT, class SlotT>
@@ -102,23 +103,30 @@ namespace ThreadPool6
 	template <class ActionT, class SlotT>
 	void TaskImpl<ActionT, SlotT>::Action()
 	{
-		std::lock_guard<std::mutex> lock(m_mutex);
-		if (m_isCanceled)
 		{
-			return;
+			std::lock_guard<std::mutex> lock(m_mutex);
+			if (m_isCanceled)
+			{
+				return;
+			}
 		}
 
+		HRESULT hr;
 		try
 		{
-			m_hr = m_func();
+			hr = m_func();
 		}
 		catch (...)
 		{
-			m_hr = E_FAIL;
+			hr = E_FAIL;
 		}
 
-		m_isExecuted = true;
-		m_condition.notify_all();
+		{
+			std::lock_guard<std::mutex> lock(m_mutex);
+			m_hr = hr;
+			m_isExecuted = true;
+			m_condition.notify_all();
+		}
 	}
 
 	template <class ActionT, class SlotT>
