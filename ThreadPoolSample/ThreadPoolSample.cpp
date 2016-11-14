@@ -10,6 +10,7 @@
 #include "ThreadPool4.h"
 #include "ThreadPool5.h"
 #include "ThreadPool6.h"
+#include "Slot.h"
 
 void ThreadPoolSample1()
 {
@@ -144,6 +145,29 @@ void ThreadPoolSample6()
 	}
 }
 
+void SlotSample()
+{
+#if 0
+	Slot::Slot3<HRESULT, const std::exception&> slot;
+	slot.Connect([](HRESULT hr) { std::wcout << L"HRESULT: " << hr << std::endl; });
+	slot.Connect([](const std::exception& ex) { std::wcout << L"Exception: " << ex.what() << std::endl; });
+	Slot::Slot<HRESULT, const std::exception&> slot;
+	slot.Connect([](HRESULT hr) { std::wcout << L"HRESULT: " << hr << std::endl; });
+#endif
+	int twelf = 12.5;
+	typedef std::reference_wrapper<int> rint;
+
+	Slot::MyClass<float, rint> mc;
+	std::vector<rint>& i = mc.access<rint>();
+	i.push_back(twelf);
+
+	mc.access<float>().push_back(10.5);
+
+	std::cout << "Test:\n";
+	std::cout << "floats: " << mc.access<float>()[0] << std::endl;
+	std::cout << "ints: " << mc.access<rint>()[0] << std::endl;
+}
+
 int main()
 {
 	ThreadPoolSample1();
@@ -152,6 +176,7 @@ int main()
 	ThreadPoolSample4();
 	ThreadPoolSample5();
 	ThreadPoolSample6();
+	SlotSample();
 
 	return 0;
 }
