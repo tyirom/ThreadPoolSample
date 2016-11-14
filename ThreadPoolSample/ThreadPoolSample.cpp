@@ -168,6 +168,45 @@ void SlotSample()
 	std::cout << "ints: " << mc.access<rint>()[0] << std::endl;
 }
 
+void Slot2Sample()
+{
+	Slot::Slot2<std::exception, HRESULT> slots;
+	slots.Set(S_FALSE);
+	slots.Set(std::move(static_cast<std::exception>(std::bad_alloc())));
+
+	std::wcout << L"HRESULT: " << slots.Get<HRESULT>() << std::endl;
+	std::wcout << L"Exception: " << slots.Get<std::exception>().what() << std::endl;
+}
+
+void Slot3Sample()
+{
+	Slot::Slot3<std::exception, HRESULT> slots;
+	slots.Set(S_FALSE);
+	slots.Set(std::move(static_cast<std::exception>(std::bad_alloc())));
+
+	std::wcout << L"HRESULT: " << slots.Get<HRESULT>() << std::endl;
+	std::wcout << L"Exception: " << slots.Get<std::exception>().what() << std::endl;
+}
+
+void ErrorSlotSample()
+{
+	Slot::ErrorSlot slot;
+#if 0
+	slot.ErrorHandler<const std::exception&>([](const std::exception& ex) { std::wcerr << "EXCEPTION : " << ex.what() << std::endl; });
+	slot.ErrorHandler<HRESULT>([](HRESULT hr) { std::wcerr << "HRESULT : " << hr << std::endl; });
+	
+	slot.OnError<const std::exception&>(std::bad_alloc());
+	slot.OnError(S_FALSE);
+#else
+	slot.ErrorHandler([](const std::exception& ex) { std::wcerr << "EXCEPTION : " << ex.what() << std::endl; });
+	slot.ErrorHandler([](HRESULT hr) { std::wcerr << "HRESULT : " << hr << std::endl; });
+
+	slot.OnError(std::bad_alloc());
+	slot.OnError(S_FALSE);
+
+#endif
+}
+
 int main()
 {
 	ThreadPoolSample1();
@@ -177,6 +216,9 @@ int main()
 	ThreadPoolSample5();
 	ThreadPoolSample6();
 	SlotSample();
+	Slot2Sample();
+	Slot3Sample();
+	ErrorSlotSample();
 
 	return 0;
 }
